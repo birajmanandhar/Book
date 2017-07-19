@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Book</string>
+    <string name="book_menu_page">Book Menu</string>
+    <string name="login_button_name">Login</string>
+    <string name="register_button_name">Register</string>
+    <string name="action_settings">Setting</string>
+
+    <string name="title_activity_fullscreen">Register Page</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_book">BookActivity</string>
+
+</resources>
