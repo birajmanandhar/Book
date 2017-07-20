@@ -12,23 +12,31 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name">
+
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_fullscreen" />
+        <activity
+            android:name=".BookMenuActivity"
+            android:label="@string/book_menu_page">
+
+            <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            -->
         </activity>
         <activity
-            android:name=".RegisterActivity"
-            android:label="@string/title_activity_fullscreen"></activity>
-        <activity
-            android:name=".BookMenuActivity"
-            android:label="@string/book_menu_page">
-            <!--<intent-filter>
+            android:name=".BookDisplayActivity"
+            android:label="@string/title_activity_book_display">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
         </activity>
     </application>
 
