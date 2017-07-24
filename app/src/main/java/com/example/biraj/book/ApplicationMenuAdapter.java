@@ -1,6 +1,7 @@
 package com.example.biraj.book;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,18 +9,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 /* Adapter class for setting the grid menu list in the application */
 
-public class ApplicationMenuAdapter extends ArrayAdapter<String> {
+public class ApplicationMenuAdapter extends ArrayAdapter<BookInfo> {
 
     private Context mContext;
     ImageView menuImageView;
     TextView labelView;
-    ArrayList<String> lists;
+    ArrayList<BookInfo> lists;
 
-    public ApplicationMenuAdapter(Context context, int textViewResourceId, ArrayList<String> objects) {
+    public ApplicationMenuAdapter(Context context, int textViewResourceId, ArrayList<BookInfo> objects) {
         super(context, textViewResourceId, objects);
         mContext = context;
         lists = objects;
@@ -37,33 +40,33 @@ public class ApplicationMenuAdapter extends ArrayAdapter<String> {
         menuImageView.setAdjustViewBounds(true);
         labelView = (TextView) v.findViewById(R.id.menuName);
 
-        final String applicationMenu = lists.get(position);
+        final String applicationMenu = lists.get(position).getBookName();
+        //final String resource = lists.get(position).getBookAuthor();
 
         try {
             if (applicationMenu != null) {
                 if (applicationMenu != null && applicationMenu.length() > 0) {
                     // Checks for the item name and sets respective image for
                     // the item name
-                    int resId = 0;
-                    if (applicationMenu.equalsIgnoreCase("add")) {
-                        resId = R.mipmap.alert_icon;
-                    } else if (applicationMenu.equalsIgnoreCase("list")) {
-                        resId = R.mipmap.alert_icon;
-                    } else if (applicationMenu.equalsIgnoreCase("view log")) {
-                        resId = R.mipmap.alert_icon;
-                    } else if (applicationMenu.equalsIgnoreCase("help")) {
-                        resId = R.mipmap.alert_icon;
-                    } else if (applicationMenu.equalsIgnoreCase("about")) {
-                        resId = R.mipmap.alert_icon;
-                    }
+                    //skip code test
+                    //final String resource = FileReader.userImageFolderPath+FileReader.sep+(lists.get(position).getBookName())+".png";
                     try {
                         // Sets the targeted image resource or else sets android
                         // default icon
-                        menuImageView.setImageResource(resId);
-                        labelView.setText(applicationMenu+" over loading the text please look out");
+                        //skip code test
+                        //Bitmap bmp = BitmapFactory.decodeFile(resource);
+                        //menuImageView.setImageBitmap(bmp);
+                        Picasso.with(mContext).load(lists.get(position).getUrl()).
+                                fit().
+                                placeholder(R.mipmap.alert_icon).
+                                error(R.mipmap.alert_icon).
+                                into(menuImageView);
+                        labelView.setText(applicationMenu);
                     } catch (Exception ex) {
+                        Log.d("Biraj I",ex.getMessage());
                         menuImageView.setImageResource(R.mipmap.alert_icon);
                     } catch (Error er) {
+                        Log.d("Biraj I",er.getMessage());
                         menuImageView.setImageResource(R.mipmap.alert_icon);
                     }
                 } else {

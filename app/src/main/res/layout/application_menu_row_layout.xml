@@ -6,17 +6,24 @@
 
     <ImageView
         android:id="@+id/menuImageView"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
 
     <TextView
         android:id="@+id/menuName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:maxLines="1"
         android:textSize="12sp" />
+    <!--
 
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+
+    -->
 </LinearLayout>

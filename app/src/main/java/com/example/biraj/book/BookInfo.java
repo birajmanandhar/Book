@@ -1,5 +1,6 @@
 package com.example.biraj.book;
 
+
 /**
  * Created by Biraj on 7/20/2017.
  */
@@ -9,10 +10,12 @@ public class BookInfo {
     String bookName;
     String bookAuthor;
     String bookUploadDate;
-    String userId;
+    String bookImagePath;
+    String url;
 
-    public String getUserId() {
-        return userId;
+    @Override
+    public String toString() {
+        return bookId + " - " + bookName + " - " + bookAuthor + " - " + bookUploadDate + " - " + bookImagePath + " - " + url;
     }
 
     public String getBookId() {
@@ -29,5 +32,13 @@ public class BookInfo {
 
     public String getBookUploadDate() {
         return bookUploadDate;
+    }
+
+    public String getBookImagePath() {
+        return bookImagePath;
+    }
+
+    public String getUrl() {
+        return url;
     }
 }
