@@ -1,13 +1,29 @@
 package com.example.biraj.book;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -27,39 +43,48 @@ import java.util.ArrayList;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 
+@SuppressWarnings("ResourceType")
 public class BookDisplayActivity extends AppCompatActivity {
-    private GridView applicationMenuGridView;
-    ApplicationMenuAdapter menuAdapter;
-    //ArrayList<String> menulist = new ArrayList<>();
-    ArrayList<BookInfo> bookInfo = new ArrayList<BookInfo>();
     ImageView imageView;
-
-    //hardcoded for trial picasso
-    public static String[] eatFoodyImages = {
-            "http://i.imgur.com/rFLNqWI.jpg",
-            "http://i.imgur.com/C9pBVt7.jpg",
-            "http://i.imgur.com/rT5vXE1.jpg",
-            "http://i.imgur.com/aIy5R2k.jpg",
-            "http://i.imgur.com/MoJs9pT.jpg",
-            "http://i.imgur.com/S963yEM.jpg",
-            "http://i.imgur.com/rLR2cyc.jpg",
-            "http://i.imgur.com/SEPdUIx.jpg",
-            "http://i.imgur.com/aC9OjaM.jpg",
-            "http://i.imgur.com/76Jfv9b.jpg",
-            "http://i.imgur.com/fUX7EIB.jpg",
-            "http://i.imgur.com/syELajx.jpg",
-            "http://i.imgur.com/COzBnru.jpg",
-            "http://i.imgur.com/Z3QjilA.jpg",
-    };
+    public static final Integer NOTIFICATION_ID = 104;
+    //private static final String TAG_BOOK_DISPLAY_FRAGMENT = "BookDisplayFragment";
+    private BookDisplayFragment bookDisplayFragment;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_book_display);
+        //Testing the Sliding Menu
+
+        //*****Trial with slide menu******
+        setContentView(R.layout.trial_sliding_layout);
+        setTitle("Main Menu");
+        setupSlidingMenu();
+
         createUserInformation();
-        loadBookInfoModel();
-        loadApplicationMenuAdapter();
+        // find the retained fragment on activity restarts
+        FragmentManager mFragmentManager;
+        if (savedInstanceState == null) {
+            // only create fragment if activity is started for the first time
+            mFragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            Fragment bookDisplayFragment = new BookDisplayFragment();
+            fragmentTransaction.replace(R.id.main_content, bookDisplayFragment, bookDisplayFragment.getClass().getSimpleName()).commit();
+        } else {
+            // do nothing - fragment is recreated automatically
+        }
+
+
+        /*
+        FragmentManager fm = getSupportFragmentManager();
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment bookDisplayFragment = new BookDisplayFragment();
+        ft.replace(R.id.main_content, bookDisplayFragment, bookDisplayFragment.getClass().getSimpleName()).commit();*/
+        //.addToBackStack(null)
+
+        //TODO For Notification
+        //setupNotification();
 
         //*****Trail with piasco******
         /*
@@ -69,6 +94,28 @@ public class BookDisplayActivity extends AppCompatActivity {
         Picasso.with(this).load("https://cms-assets.tutsplus.com/uploads/users/21/posts/19431/featured_image/CodeFeature.jpg").placeholder(R.mipmap.alert_icon).error(R.mipmap.alert_icon).into(imageView);
         */
 
+    }
+
+    /*
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+
+        }
+    }*/
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public void createUserInformation() {
@@ -141,43 +188,94 @@ public class BookDisplayActivity extends AppCompatActivity {
         }
     }
 
-    public void loadBookInfoModel() {
-        try {
-            String resultData = FileReader.getStringFromFile(FileReader.bookInfoDataPath);
 
-            JSONObject jObject = new JSONObject(resultData);
-            JSONArray jsonBook = jObject.getJSONArray("jsonbook");
-            String resultDataJsonBook = jsonBook.toString();
+    public void setupNotification() {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.mipmap.book)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!");
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, BookDisplayActivity.class);
 
-            Type arrayListType = new TypeToken<ArrayList<BookInfo>>() {
-            }.getType();
-            Gson g = new Gson();
-            bookInfo = g.fromJson(resultDataJsonBook, arrayListType);
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(BookDisplayActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            for (int i = 0; i < bookInfo.size(); i++) {
-                String bookName = bookInfo.get(i).getBookName();
-                //String bookUploadDate = bookInfo.get(i).getBookUploadDate();
-                Log.i("book name i:" + i + " ", bookName);
-                //Log.i("book date i:" + i + " ", bookUploadDate);
-            }
-        } catch (Exception e) {
-            Log.d("loadBookModel:", e.getMessage());
-        }
+        // mNotificationId is a unique integer your app uses to identify the
+        // notification. For example, to cancel the notification, you can pass its ID
+        // number to NotificationManager.cancel().
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+
     }
 
-    public void loadApplicationMenuAdapter() {
-        applicationMenuGridView = (GridView) findViewById(R.id.menuGrid);
-        this.runOnUiThread(new Runnable() {
-            public void run() {
-                menuAdapter = new ApplicationMenuAdapter(BookDisplayActivity.this, R.layout.activity_book_display, bookInfo);
-                applicationMenuGridView.setAdapter(menuAdapter);
-            }
-        });
+    public void setupSlidingMenu() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        setNavigationSettings();
+    }
 
-        applicationMenuGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent,
-                                    View v, int position, long id) {
-                Toast.makeText(getBaseContext(), "Book by : " + bookInfo.get(position).getBookAuthor(), Toast.LENGTH_SHORT).show();
+    public void setNavigationSettings(){
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.nav_home) {
+                    try {
+                        Fragment helpFragment = new HelpFragment();
+                        if (helpFragment != null) {
+                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                            Fragment bookDisplayFragment = new BookDisplayFragment();
+                            ft.replace(R.id.main_content, bookDisplayFragment, bookDisplayFragment.getClass().getSimpleName()).commit();
+                        }
+                    } catch (Exception e) {
+                        Log.d("Home btn Err:", e.getMessage());
+                    }
+                } else if (id == R.id.nav_log_register) {
+                    try {
+                        Fragment loginFragment = new LoginFragment();
+                        if (loginFragment != null) {
+                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                            ft.replace(R.id.main_content, loginFragment, loginFragment.getClass().getSimpleName()).commit();
+                        }
+                    } catch (Exception e) {
+                        Log.d("Reg btn Err:", e.getMessage());
+                    }
+                }else if (id == R.id.nav_about) {
+                    try {
+                        Fragment aboutFragment = new BlankFragment();
+                        if (aboutFragment != null) {
+                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                            ft.replace(R.id.main_content, aboutFragment, aboutFragment.getClass().getSimpleName()).commit();
+                        }
+                    } catch (Exception e) {
+                        Log.d("About btn Err:", e.getMessage());
+                    }
+                }
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
             }
         });
     }

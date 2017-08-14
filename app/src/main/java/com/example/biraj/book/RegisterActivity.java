@@ -6,14 +6,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.biraj.book.services.WebService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -34,6 +37,8 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        setTitle("Register Page");/**/
+        //Loading the application views!
         loadRegisterPageView();
 
         Button btnRegister = (Button) (findViewById(R.id.btnRegister));
@@ -81,6 +86,20 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    public String getRegistryInformation(){
+        userInformations = new ArrayList<UserInfo>();
+        UserInfo rowData = new UserInfo();
+        rowData.setContact(contact);
+        rowData.setPassword(password);
+        rowData.setName(fullName);
+        rowData.setAddress(address);
+        rowData.setEmail(emailAddress);
+        userInformations.add(rowData);
+        Gson gson = new Gson();
+        String result = gson.toJson(userInformations);
+        return result;
+    }
+
     public String updateUserInformations() {
         try {
             //Call for web service or load User information data in String form
@@ -88,7 +107,7 @@ public class RegisterActivity extends AppCompatActivity {
             //Now match string with Data Model UserInfo
             //String loadCode = loadUserInformationModel(userInformationData);
 
-            if (userInformationData.equals("[]")) {
+            if (userInformationData.equals("[]") || userInformationData.equals("0")) {
                 //Gson g = new Gson();
                 //UserInfo[] userInfo = g.fromJson(strJson, UserInfo[].class);
                 /*userInformations = new UserInfo[1];
@@ -147,7 +166,7 @@ public class RegisterActivity extends AppCompatActivity {
         try {
             boolean check = validateUserInfoFields();
             if (check) {
-                String uploadData = updateUserInformations();
+                String uploadData = getRegistryInformation();
                 if (uploadData != null) {
                     BackgroundTask task = new BackgroundTask(RegisterActivity.this);
                     task.execute(uploadData);
@@ -157,9 +176,8 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(RegisterActivity.this, "Please verify the form fields!", Toast.LENGTH_SHORT).show();
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d("registerUserInfo Err", e.getMessage());
         }
     }
 
@@ -177,32 +195,30 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         @Override
+        protected String doInBackground(String... params) {
+            String data = params[0];
+            String result = null;
+            try {
+                result = WebService.post(WebService.REGISTER_URL, data);
+            } catch (IOException e) {
+                Log.d("Webservice ERR:",e.getMessage());
+            }
+            return result;
+        }
+
+        @Override
         protected void onPostExecute(String result) {
-
+            /* Closing Shared Preferences
             SharedPreferences.Editor editor = getSharedPreferences("DataStore", MODE_PRIVATE).edit();
-            //check for previous json data
-            /*SharedPreferences sharedPref = getSharedPreferences("DataStore", MODE_PRIVATE);
-            String previousData = sharedPref.getString("jsondata", "");
-            ArrayList<String> jsonDataList;
-            if (previousData.trim().length() > 0) {
-                jsonDataList = new ArrayList<String>();
-
-            }*/
             editor.putString("jsondata", result);
             editor.commit();
-            editor.apply();
+            editor.apply();*/
+            Toast.makeText(RegisterActivity.this, result, Toast.LENGTH_SHORT).show();
             if (dialog.isShowing()) {
                 dialog.dismiss();
             }
             finish();
         }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String data = params[0];
-            return data;
-        }
-
     }
 
     public final static boolean isValidEmail(CharSequence target) {
